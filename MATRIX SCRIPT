@@ -1,0 +1,21 @@
+import re
+
+# Read N (rows) and M (columns)
+n, m = map(int, input().split())
+
+# Read the matrix rows
+matrix = [input() for _ in range(n)]
+
+# Step 1: Read each column from top to bottom, starting from the leftmost
+# Using zip(*matrix) is a common way to transpose rows into columns
+decoded_string = "".join(["".join(column) for column in zip(*matrix)])
+
+# Step 2: Replace symbols/spaces between two alphanumeric characters with one space
+# \w matches [a-zA-Z0-9_]
+# [^\w]+ matches one or more non-alphanumeric characters
+# (?<=\w) is a positive lookbehind for an alphanumeric char
+# (?=\w) is a positive lookahead for an alphanumeric char
+pattern = r'(?<=\w)([^\w]+)(?=\w)'
+final_decoded = re.sub(pattern, ' ', decoded_string)
+
+print(final_decoded)
