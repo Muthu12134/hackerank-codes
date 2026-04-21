@@ -66,26 +66,40 @@ Error Code: invalid literal for int() with base 10: '$'
 3
 
 ANSWER:
-  import sys
+import sys
 
 def solve():
+    # Read the number of test cases
+    line = sys.stdin.readline()
     if not line:
         return
-    t = line.strip()
     
-    for _ in range(int(t)):
+    try:
+        t = int(line.strip())
+    except ValueError:
+        return
+
+    for _ in range(t):
+        case = sys.stdin.readline()
+        if not case:
+            break
+        
         try:
-            line = sys.stdin.readline()
-            if not line:
-                break
-            a, b = line.split()
-            print(int(a) // int(b))
+            # split() without arguments handles multiple spaces and leading/trailing whitespace
+            parts = case.split()
+            
+            # Ensure we have at least two values to avoid IndexError
+            if len(parts) >= 2:
+                a, b = parts[0], parts[1]
+                # In Python 3, use // for integer division
+                print(int(a) // int(b))
+            
         except ZeroDivisionError:
+            # Manually print the exact string required by the task
             print("Error Code: integer division or modulo by zero")
         except ValueError as e:
+            # Print the default error message for ValueError (e.g., for '$')
             print("Error Code:", e)
 
 if __name__ == "__main__":
     solve()
-
-
