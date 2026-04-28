@@ -1,0 +1,27 @@
+import email.utils
+import re
+
+def validate_emails():
+    n = int(input())
+    
+    # Regex breakdown:
+    # ^[a-z]            Starts with a letter
+    # [a-z0-9._-]*      Subsequent chars: alphanumeric, ., _, or -
+    # @                 Literal @
+    # [a-z]+            Domain: letters only
+    # \.                Literal dot
+    # [a-z]{1,3}$       Extension: letters only, length 1-3
+    pattern = r'^[a-z][a-z0-9._-]*@[a-z]+\.[a-z]{1,3}$'
+
+    for _ in range(n):
+        raw_input = input()
+        # parseaddr returns a tuple: (name, address)
+        name, addr = email.utils.parseaddr(raw_input)
+        
+        # Check if the address matches our criteria (case-insensitive)
+        if re.match(pattern, addr, re.IGNORECASE):
+            # formataddr reconstructs the 'name <addr>' string
+            print(email.utils.formataddr((name, addr)))
+
+if __name__ == "__main__":
+    validate_emails()
