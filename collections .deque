@@ -1,0 +1,22 @@
+from collections import deque
+
+def process_deque():
+    n = int(input())
+    d = deque()
+
+    for _ in range(n):
+        # Split input into method name and optional value
+        input_data = input().split()
+        method_name = input_data[0]
+        
+        # If there's an argument (like '1'), pass it to the method
+        if len(input_data) > 1:
+            getattr(d, method_name)(input_data[1])
+        else:
+            getattr(d, method_name)()
+
+    # Print all elements in the deque separated by a space
+    print(*(d))
+
+if __name__ == "__main__":
+    process_deque()
