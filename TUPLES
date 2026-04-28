@@ -1,0 +1,10 @@
+if __name__ == '__main__':
+    # raw_input() is used in Python 2 instead of input()
+    n = int(raw_input())
+    
+    # map returns a list in Python 2, which we convert to a tuple
+    integer_list = map(int, raw_input().split())
+    t = tuple(integer_list)
+    
+    # Print the deterministic hash
+    print hash(t)
