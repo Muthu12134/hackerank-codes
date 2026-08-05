@@ -1,0 +1,49 @@
+Playong with Characters
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_HEIGHT 41
+
+// Define the structure for a box
+struct box {
+    int length;
+    int width;
+    int height;
+};
+
+typedef struct box box;
+
+// Function to calculate the volume of a box
+int get_volume(box b) {
+    return b.length * b.width * b.height;
+}
+
+// Function to check if the box height is strictly less than 41 feet
+int is_lower_than_max_height(box b) {
+    if (b.height < MAX_HEIGHT) {
+        return 1;
+    }
+    return 0;
+}
+
+int main() {
+    int n;
+    if (scanf("%d", &n) != 1) return 0;
+    
+    box* boxes = malloc(n * sizeof(box));
+    
+    for (int i = 0; i < n; i++) {
+        scanf("%d %d %d", &boxes[i].length, &boxes[i].width, &boxes[i].height);
+    }
+    
+    for (int i = 0; i < n; i++) {
+        if (is_lower_than_max_height(boxes[i])) {
+            printf("%d\n", get_volume(boxes[i]));
+        }
+    }
+    
+    free(boxes);
+    return 0;
+}
