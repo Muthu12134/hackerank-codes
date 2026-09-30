@@ -1,0 +1,16 @@
+def calculateMinimumHP(dungeon: list[list[int]]) -> int:
+    m = len(dungeon)
+    n = len(dungeon[0])
+    dp = [[float('inf')] * n for _ in range(m)]
+    
+    for i in range(m - 1, -1, -1):
+        for j in range(n - 1, -1, -1):
+            if i == m - 1 and j == n - 1:
+                dp[i][j] = max(1, 1 - dungeon[i][j])
+            else:
+                down = dp[i + 1][j] if i + 1 < m else float('inf')
+                right = dp[i][j + 1] if j + 1 < n else float('inf')
+                min_next = min(down, right)
+                dp[i][j] = max(1, min_next - dungeon[i][j])
+                
+    return dp[0][0]
