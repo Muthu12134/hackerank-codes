@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main() {
+    int n;
+    if (scanf("%d", &n) != 1) return 1;
+    
+    // Allocate array of strings for stringList (max string length 20)
+    char (*stringList)[21] = malloc(n * sizeof(*stringList));
+    for (int i = 0; i < n; i++) {
+        scanf("%s", stringList[i]);
+    }
+    
+    int q;
+    if (scanf("%d", &q) != 1) {
+        free(stringList);
+        return 1;
+    }
+    
+    // Process each query on the fly to save memory
+    char query[21];
+    for (int i = 0; i < q; i++) {
+        scanf("%s", query);
+        
+        int count = 0;
+        // Count matches in the stringList
+        for (int j = 0; j < n; j++) {
+            if (strcmp(stringList[j], query) == 0) {
+                count++;
+            }
+        }
+        printf("%d\n", count);
+    }
+    
+    free(stringList);
+    return 0;
+}
