@@ -1,0 +1,143 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MOD 1000003
+#define MAXN 100005
+
+long long fact[MAXN];
+long long d_orig[MAXN];
+
+// Segment tree structures
+long long tree_deg[4 * MAXN];     // Tracks total degree of the range
+long long tree_current[4 * MAXN]; // Tracks product of current leading coefficients
+long long tree_base[4 * MAXN];    // Tracks product of original d_m (base values)
+long long lazy[4 * MAXN];         // Tracks lazy updates to exponents
+
+void precompute() {
+    fact[0] = 1;
+    for (int i = 1; i < MAXN; i++) {
+        fact[i] = (fact[i - 1] * i) % MOD;
+    }
+}
+
+long long power(long long base, long long exp) {
+    long long res = 1;
+    base %= MOD;
+    while (exp > 0) {
+        if (exp % 2 == 1) res = (res * base) % MOD;
+        base = (base * base) % MOD;
+        exp /= 2;
+    }
+    return res;
+}
+
+// Build the Segment Tree
+void build(int node, int start, int end) {
+    lazy[node] = 0;
+    if (start == end) {
+        tree_deg[node] = 1; // Initially each sequence has a degree of 1
+        tree_base[node] = d_orig[start] % MOD;
+        tree_current[node] = d_orig[start] % MOD;
+        return;
+    }
+    int mid = (start + end) / 2;
+    build(2 * node, start, mid);
+    build(2 * node + 1, mid + 1, end);
+    
+    tree_deg[node] = tree_deg[2 * node] + tree_deg[2 * node + 1];
+    tree_base[node] = (tree_base[2 * node] * tree_base[2 * node + 1]) % MOD;
+    tree_current[node] = (tree_current[2 * node] * tree_current[2 * node + 1]) % MOD;
+}
+
+// Push lazy updates down to children
+void push(int node, int start, int end) {
+    if (lazy[node] == 0) return;
+    
+    long long val = lazy[node];
+    int mid = (start + end) / 2;
+    
+    // Left child update
+    lazy[2 * node] += val;
+    tree_deg[2 * node] += val * (mid - start + 1);
+    tree_current[2 * node] = (tree_current[2 * node] * power(tree_base[2 * node], val)) % MOD;
+    
+    // Right child update
+    lazy[2 * node + 1] += val;
+    tree_deg[2 * node + 1] += val * (end - mid);
+    tree_current[2 * node + 1] = (tree_current[2 * node + 1] * power(tree_base[2 * node + 1], val)) % MOD;
+    
+    lazy[node] = 0;
+}
+
+// Range Update operation
+void update(int node, int start, int end, int l, int r, long long val) {
+    if (r < start || end < l) return;
+    if (l <= start && end <= r) {
+        lazy[node] += val;
+        tree_deg[node] += val * (end - start + 1);
+        tree_current[node] = (tree_current[node] * power(tree_base[node], val)) % MOD;
+        return;
+    }
+    push(node, start, end);
+    int mid = (start + end) / 2;
+    update(2 * node, start, mid, l, r, val);
+    update(2 * node + 1, mid + 1, end, l, r, val);
+    
+    tree_deg[node] = tree_deg[2 * node] + tree_deg[2 * node + 1];
+    tree_current[node] = (tree_current[2 * node] * tree_current[2 * node + 1]) % MOD;
+}
+
+// Query to fetch total degree and leading coefficient product
+void query(int node, int start, int end, int l, int r, long long* total_deg, long long* prod_coeff) {
+    if (r < start || end < l) return;
+    if (l <= start && end <= r) {
+        *total_deg += tree_deg[node];
+        *prod_coeff = (*prod_coeff * tree_current[node]) % MOD;
+        return;
+    }
+    push(node, start, end);
+    int mid = (start + end) / 2;
+    query(2 * node, start, mid, l, r, total_deg, prod_coeff);
+    query(2 * node + 1, mid + 1, end, l, r, total_deg, prod_coeff);
+}
+
+int main() {
+    precompute();
+    
+    int n;
+    if (scanf("%d", &n) != 1) return 0;
+    
+    for (int i = 1; i <= n; i++) {
+        long long a, d;
+        int slope_type;
+        if (scanf("%lld %lld %d", &a, &d, &slope_type) != 3) return 0;
+        d_orig[i] = d;
+    }
+    
+    build(1, 1, n);
+    
+    int q;
+    if (scanf("%d", &q) != 1) return 0;
+    
+    while (q--) {
+        int type;
+        if (scanf("%d", &type) != 1) break;
+        if (type == 0) {
+            int i, j;
+            if (scanf("%d %d", &i, &j) != 2) break;
+            
+            long long total_deg = 0;
+            long long prod_coeff = 1;
+            query(1, 1, n, i, j, &total_deg, &prod_coeff);
+            
+            long long ans = (prod_coeff * fact[total_deg]) % MOD;
+            printf("%lld %lld\n", total_deg, ans);
+        } else {
+            int i, j;
+            long long v;
+            if (scanf("%d %d %lld", &i, &j, &v) != 3) break;
+            update(1, 1, n, i, j, v);
+        }
+    }
+    return 0;
+}
