@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Function to find the maximum value using the difference array approach
+long arrayManipulation(int n, int queries_rows, int queries_cols, int** queries) {
+    // Allocate memory for the difference array of size (n + 2).
+    // Using long long to prevent integer overflow since values can sum up to 10^10.
+    long long *diff = (long long *)calloc(n + 2, sizeof(long long));
+    if (diff == NULL) {
+        return 0;
+    }
+
+    // Apply the boundary updates for each query
+    for (int i = 0; i < queries_rows; i++) {
+        int a = queries[i][0];
+        int b = queries[i][1];
+        long long k = queries[i][2];
+
+        diff[a] += k;
+        if (b + 1 <= n) {
+            diff[b + 1] -= k;
+        }
+    }
+
+    // Traverse the array to compute the running prefix sum and find the max value
+    long long max_val = 0;
+    long long current_sum = 0;
+    for (int i = 1; i <= n; i++) {
+        current_sum += diff[i];
+        if (current_sum > max_val) {
+            max_val = current_sum;
+        }
+    }
+
+    free(diff);
+    return max_val;
+}
+
+int main() {
+    int n, m;
+    if (scanf("%d %d", &n, &m) != 2) return 1;
+
+    // Dynamically allocate the 2D queries array
+    int **queries = (int **)malloc(m * sizeof(int *));
+    for (int i = 0; i < m; i++) {
+        queries[i] = (int *)malloc(3 * sizeof(int));
+        scanf("%d %d %d", &queries[i][0], &queries[i][1], &queries[i][2]);
+    }
+
+    long max_value = arrayManipulation(n, m, 3, queries);
+    printf("%ld\n", max_value);
+
+    // Free allocated memory
+    for (int i = 0; i < m; i++) {
+        free(queries[i]);
+    }
+    free(queries);
+
+    return 0;
+}
