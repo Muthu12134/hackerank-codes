@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <limits.h>
+
+// Function to calculate the maximum hourglass sum
+int hourglassSum(int arr[6][6]) {
+    int max_sum = INT_MIN; // Initialize to the lowest possible integer value
+
+    // The top-left corner of an hourglass can only exist between rows 0-3 and cols 0-3
+    for (int i = 0; i <= 3; i++) {
+        for (int j = 0; j <= 3; j++) {
+            // Calculate the sum of the current hourglass pattern
+            int current_sum = arr[i][j]   + arr[i][j+1]   + arr[i][j+2] // Top row
+                                          + arr[i+1][j+1]               // Middle element
+                            + arr[i+2][j] + arr[i+2][j+1] + arr[i+2][j+2]; // Bottom row
+            
+            // Track the maximum sum found
+            if (current_sum > max_sum) {
+                max_sum = current_sum;
+            }
+        }
+    }
+    return max_sum;
+}
+
+int main() {
+    int arr[6][6];
+    
+    // Read the 6x6 matrix from input
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            if (scanf("%d", &arr[i][j]) != 1) {
+                return 1;
+            }
+        }
+    }
+    
+    // Print the maximum hourglass sum
+    printf("%d\n", hourglassSum(arr));
+    
+    return 0;
+}
