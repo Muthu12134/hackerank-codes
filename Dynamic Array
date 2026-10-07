@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, q;
+    // Read the number of arrays (n) and the number of queries (q)
+    if (scanf("%d %d", &n, &q) != 2) {
+        return 1;
+    }
+
+    // Allocate memory for the 2D array (array of pointers)
+    int **arr = (int **)malloc(n * sizeof(int *));
+    // Array to keep track of the current number of elements in each sub-array
+    int *sizes = (int *)calloc(n, sizeof(int));
+    // Array to keep track of the allocated capacity for each sub-array
+    int *capacities = (int *)calloc(n, sizeof(int));
+
+    // Initialize all sub-arrays to NULL
+    for (int i = 0; i < n; i++) {
+        arr[i] = NULL;
+    }
+
+    int lastAnswer = 0;
+
+    // Process each query
+    for (int i = 0; i < q; i++) {
+        int type, x, y;
+        if (scanf("%d %d %d", &type, &x, &y) != 3) {
+            break;
+        }
+
+        // Compute the target array index using the formula
+        int idx = (x ^ lastAnswer) % n;
+
+        if (type == 1) {
+            // Check if we need to allocate or expand memory for arr[idx]
+            if (sizes[idx] >= capacities[idx]) {
+                // If capacity is 0, start with 2. Otherwise, double the capacity.
+                capacities[idx] = (capacities[idx] == 0) ? 2 : capacities[idx] * 2;
+                int *temp = (int *)realloc(arr[idx], capacities[idx] * sizeof(int));
+                if (temp == NULL) {
+                    // Out of memory error handling
+                    return 1;
+                }
+                arr[idx] = temp;
+            }
+            // Append the value 'y' to the end of the selected sub-array
+            arr[idx][sizes[idx]] = y;
+            sizes[idx]++;
+            
+        } else if (type == 2) {
+            // Compute the element index inside the target array
+            int col_idx = y % sizes[idx];
+            // Update lastAnswer with the fetched value
+            lastAnswer = arr[idx][col_idx];
+            // Output the result for the Type 2 query
+            printf("%d\n", lastAnswer);
+        }
+    }
+
+    // --- Clean up memory ---
+    for (int i = 0; i < n; i++) {
+        if (arr[i] != NULL) {
+            free(arr[i]);
+        }
+    }
+    free(arr);
+    free(sizes);
+    free(capacities);
+
+    return 0;
+}
